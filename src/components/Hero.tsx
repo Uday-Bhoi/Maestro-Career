@@ -15,12 +15,12 @@ export default function Hero() {
                 <p className="mt-4 text-xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
                 </p>
-                <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
                     <a
-                        href="#contact"
+                        href="/demo-test"
                         className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-medium rounded-full text-white bg-primary hover:bg-primary-dark shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                     >
-                        Get Started
+                        Try Assessment Demo
                         <ArrowRight className="ml-2 h-5 w-5" />
                     </a>
                     <a
