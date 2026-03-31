@@ -10,7 +10,7 @@ import Chatbot from "@/components/Chatbot";
 import MainLayout from "@/components/MainLayout";
 
 export const metadata: Metadata = {
-  title: "Maestro Career",
+  title: "Maestro Caree",
   description: "Experience the future of career exploration with our interactive 3D platform.",
 };
 
