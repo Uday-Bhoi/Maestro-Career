@@ -48,6 +48,13 @@ const config: Config = {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        // Vibe Brand Palette
+        vibe: {
+          blue: "hsl(var(--vibe-blue))",
+          purple: "hsl(var(--vibe-purple))",
+          pink: "hsl(var(--vibe-pink))",
+          emerald: "hsl(var(--vibe-emerald))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
