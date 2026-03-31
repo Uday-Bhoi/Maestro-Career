@@ -2,7 +2,6 @@
 
 import React from "react";
 import {
-    LineChart,
     Line,
     BarChart,
     Bar,
@@ -15,8 +14,10 @@ import {
     Area,
 } from "recharts";
 
+type ChartDataItem = Record<string, string | number>;
+
 interface LineChartProps {
-    data: any[];
+    data: ChartDataItem[];
 }
 
 export function PremiumLineChart({ data }: LineChartProps) {
@@ -64,7 +65,7 @@ export function PremiumLineChart({ data }: LineChartProps) {
     );
 }
 
-export function PremiumBarChart({ data }: { data: any[] }) {
+export function PremiumBarChart({ data }: { data: ChartDataItem[] }) {
     return (
         <div className="h-[400px] w-full p-8 rounded-[2.5rem] bg-secondary/10 border border-foreground/5 backdrop-blur-md">
             <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-foreground/40 mb-8">User.Registrations</h2>

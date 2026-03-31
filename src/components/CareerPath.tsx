@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { useRef } from "react";
 import { ClipboardList, BrainCircuit, Lightbulb, Rocket, Sparkles } from "lucide-react";
 
@@ -45,7 +45,7 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section 
+    <section
       ref={containerRef}
       className="relative py-32 overflow-hidden bg-background will-change-transform"
     >
@@ -68,7 +68,7 @@ export default function HowItWorks() {
           <div className="relative">
             {/* Main Vertical/Mobile Line */}
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-border rounded-full lg:block hidden">
-              <motion.div 
+              <motion.div
                 style={{ scaleY: smoothProgress, originY: 0 }}
                 className="w-full h-full bg-gradient-to-b from-primary via-accent-purple to-accent-orange"
               />
@@ -79,9 +79,9 @@ export default function HowItWorks() {
                 const isEven = idx % 2 === 0;
                 return (
                   <div key={idx} className={`flex flex-col lg:flex-row items-center justify-between gap-12 ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
-                    
+
                     {/* Content Corner */}
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, x: isEven ? -50 : 50 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ margin: "-100px" }}
@@ -105,11 +105,11 @@ export default function HowItWorks() {
                         viewport={{ margin: "-100px" }}
                         className={`w-28 h-28 rounded-[2.5rem] bg-gradient-to-br ${step.color} p-1 shadow-2xl group transition-transform`}
                       >
-                         <div className="w-full h-full bg-card rounded-[2.4rem] flex items-center justify-center">
-                           <step.icon className={`w-12 h-12 bg-gradient-to-br ${step.color} bg-clip-text text-transparent`} />
-                         </div>
+                        <div className="w-full h-full bg-card rounded-[2.4rem] flex items-center justify-center">
+                          <step.icon className={`w-12 h-12 bg-gradient-to-br ${step.color} bg-clip-text text-transparent`} />
+                        </div>
                       </motion.div>
-                      
+
                       {/* Mobile Line extension */}
                       <div className="absolute top-28 w-1 h-32 bg-border lg:hidden" />
                     </div>
@@ -123,7 +123,7 @@ export default function HowItWorks() {
           </div>
         </div>
       </div>
-      
+
       {/* Dynamic Background label */}
       <div className="absolute top-1/4 right-0 opacity-5 pointer-events-none rotate-90 select-none">
         <span className="text-[120px] font-black uppercase tracking-tighter">PROGRESSION</span>

@@ -4,17 +4,17 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import InquiryForm from "@/components/InquiryForm";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Sparkles, MessageSquare, Headphones } from "lucide-react";
+import { Mail, MapPin, MessageSquare, Headphones } from "lucide-react";
 import React from "react";
 
 export default function ContactPage() {
   return (
     <main className="min-h-screen bg-background relative overflow-hidden transition-colors duration-500">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-32 relative z-10">
         <div className="max-w-6xl mx-auto">
-          
+
           <div className="grid lg:grid-cols-2 gap-24 items-center mb-32">
             {/* Left side: Narrative & Contact Info */}
             <div className="space-y-12">
@@ -26,14 +26,14 @@ export default function ContactPage() {
                 <Headphones className="w-4 h-4" />
                 <span className="text-sm font-black uppercase tracking-widest">Support Portal</span>
               </motion.div>
-              
+
               <h1 className="text-6xl md:text-8xl font-black text-foreground tracking-tightest leading-[0.8] mb-8">
-                Let's <br />
+                Let&apos;s <br />
                 <span className="text-gradient">Connect.</span>
               </h1>
-              
+
               <p className="text-2xl text-muted-foreground font-medium max-w-lg">
-                Whether you're a curious student or a potential partner, our team of career architects is ready to help you navigate the future.
+                Whether you&apos;re a curious student or a potential partner, our team of career architects is ready to help you navigate the future.
               </p>
 
               <div className="space-y-8">
@@ -42,7 +42,7 @@ export default function ContactPage() {
                   { icon: MessageSquare, label: "Live Support", value: "Available 9am - 6pm EST", color: "text-purple-500" },
                   { icon: MapPin, label: "Global HQ", value: "Innovation Nexus, SF, CA", color: "text-orange-500" }
                 ].map((item, idx) => (
-                  <motion.div 
+                  <motion.div
                     key={idx}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -74,17 +74,17 @@ export default function ContactPage() {
 
           {/* Bottom FAQ Preview */}
           <div className="text-center bg-card/30 p-12 md:p-24 rounded-[4rem] border border-border/50 backdrop-blur-2xl">
-             <h3 className="text-4xl md:text-5xl font-black text-foreground mb-12 tracking-tighter">Frequently Asked <span className="text-muted-foreground/20">Questions.</span></h3>
-             <div className="grid md:grid-cols-2 gap-8 text-left max-w-4xl mx-auto">
-                <div>
-                   <h4 className="text-lg font-black text-primary mb-2 italic">How long does the assessment take?</h4>
-                   <p className="text-muted-foreground font-medium">Most students complete our 3D interactive journey in 45-60 minutes.</p>
-                </div>
-                <div>
-                   <h4 className="text-lg font-black text-primary mb-2 italic">Is there a free version available?</h4>
-                   <p className="text-muted-foreground font-medium">Yes, our Basic Discovery module is 100% free for first-time explorers.</p>
-                </div>
-             </div>
+            <h3 className="text-4xl md:text-5xl font-black text-foreground mb-12 tracking-tighter">Frequently Asked <span className="text-muted-foreground/20">Questions.</span></h3>
+            <div className="grid md:grid-cols-2 gap-8 text-left max-w-4xl mx-auto">
+              <div>
+                <h4 className="text-lg font-black text-primary mb-2 italic">How long does the assessment take?</h4>
+                <p className="text-muted-foreground font-medium">Most students complete our 3D interactive journey in 45-60 minutes.</p>
+              </div>
+              <div>
+                <h4 className="text-lg font-black text-primary mb-2 italic">Is there a free version available?</h4>
+                <p className="text-muted-foreground font-medium">Yes, our Basic Discovery module is 100% free for first-time explorers.</p>
+              </div>
+            </div>
           </div>
 
         </div>
