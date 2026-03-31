@@ -2,7 +2,7 @@
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Sparkles, Brain, Gamepad2, MousePointer2 } from "lucide-react";
-import React, { useRef } from "react";
+import React from "react";
 
 const TiltCard = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   const x = useMotionValue(0);

@@ -2,9 +2,9 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
-import { ShieldCheck, Zap, CheckCircle2, Brain as BrainIcon, Target, SearchCode, Sparkles, ArrowRight } from "lucide-react";
-import React, { useRef } from "react";
+import { motion, useTransform, useSpring, useMotionValue } from "framer-motion";
+import { Brain as BrainIcon, Target, SearchCode, Sparkles, ArrowRight } from "lucide-react";
+import React from "react";
 
 const TiltCard = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   const x = useMotionValue(0);
@@ -97,7 +97,7 @@ export default function ServicesPage() {
                 transition={{ delay: 0.2 }}
                 className="text-xl md:text-2xl text-foreground/50 font-bold max-w-2xl mx-auto uppercase tracking-tighter"
             >
-                Maestro is more than a platform; it's a high-precision career architect. We combine science and data to illuminate your professional clarity.
+                Maestro is more than a platform; it&apos;s a high-precision career architect. We combine science and data to illuminate your professional clarity.
             </motion.p>
         </div>
 

@@ -46,7 +46,7 @@ export default function ProblemSection() {
                   Decision.
                 </h2>
                 <p className="text-xl md:text-2xl text-foreground/40 font-bold max-w-lg leading-relaxed uppercase tracking-tight">
-                  For many, the future isn't a roadmap—it's a heavy silence. 
+                  For many, the future isn&apos;t a roadmap&mdash;it&apos;s a heavy silence. 
                   The pressure to decide your entire life by 18 is real, and often leads to the wrong path.
                 </p>
               </div>
@@ -91,7 +91,7 @@ export default function ProblemSection() {
                   className="absolute bottom-12 left-12 right-12 bg-foreground text-background p-10 shadow-3xl"
                 >
                   <p className="text-2xl font-black italic tracking-tightest leading-tight">
-                    "I just want to know if I'm making the right decision for my life, not just for a degree."
+                    &ldquo;I just want to know if I&apos;m making the right decision for my life, not just for a degree.&rdquo;
                   </p>
                   <div className="mt-8 flex items-center space-x-4">
                     <div className="h-px w-12 bg-background/20" />

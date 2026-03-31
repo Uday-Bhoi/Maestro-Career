@@ -2,8 +2,8 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { Users, Globe, Award, Sparkles, Zap, Heart } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Globe, Zap, Heart } from "lucide-react";
 import React, { useRef } from "react";
 import Image from "next/image";
 
@@ -49,7 +49,7 @@ export default function AboutPage() {
               </p>
               <div className="border-l-2 border-foreground/10 pl-10">
                 <p className="text-lg text-foreground font-black italic leading-tight uppercase tracking-tightest mb-6">
-                  "We don't just find you a job. We help you decode the professional identity you didn't even know you had."
+                  &ldquo;We don&apos;t just find you a job. We help you decode the professional identity you didn&apos;t even know you had.&rdquo;
                 </p>
                 <span className="text-[10px] font-black uppercase tracking-widest opacity-20">SYSTEM PHILOSOPHY</span>
               </div>
@@ -242,7 +242,7 @@ export default function AboutPage() {
                     <span>Revolution.</span>
                 </h2>
                 <p className="text-xl md:text-2xl font-bold uppercase tracking-tighter opacity-50">
-                    We're building a world where the word 'work' is synonymous with 'purpose'. Join the 15k+ community.
+                    We&apos;re building a world where the word &lsquo;work&rsquo; is synonymous with &lsquo;purpose&rsquo;. Join the 15k+ community.
                 </p>
                 <div className="flex justify-center">
                    <motion.button 

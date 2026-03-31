@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import InquiryForm from "@/components/InquiryForm";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Sparkles, MessageSquare, Headphones } from "lucide-react";
+import { Mail, MapPin, MessageSquare, Headphones } from "lucide-react";
 import React from "react";
 
 export default function ContactPage() {
@@ -28,12 +28,12 @@ export default function ContactPage() {
               </motion.div>
               
               <h1 className="text-6xl md:text-8xl font-black text-foreground tracking-tightest leading-[0.8] mb-8">
-                Let's <br />
+                Let&apos;s <br />
                 <span className="text-gradient">Connect.</span>
               </h1>
               
               <p className="text-2xl text-muted-foreground font-medium max-w-lg">
-                Whether you're a curious student or a potential partner, our team of career architects is ready to help you navigate the future.
+                Whether you&apos;re a curious student or a potential partner, our team of career architects is ready to help you navigate the future.
               </p>
 
               <div className="space-y-8">

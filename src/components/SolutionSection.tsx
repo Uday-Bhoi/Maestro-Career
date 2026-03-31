@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
-import { ShieldCheck, Zap, Brain, Target, Compass, Sparkles } from "lucide-react";
+import { Zap, Brain, Target, Compass } from "lucide-react";
 
 export default function SolutionSection() {
     const sectionRef = useRef<HTMLElement>(null);
@@ -56,7 +56,7 @@ export default function SolutionSection() {
                         Inside You.
                     </h2>
                     <p className="text-xl md:text-2xl text-foreground/40 font-bold max-w-2xl mx-auto uppercase tracking-tighter">
-                        Maestro isn't a test. It's a high-precision engine that decodes your professional DNA and maps it to a future that fits.
+                        Maestro isn&apos;t a test. It&apos;s a high-precision engine that decodes your professional DNA and maps it to a future that fits.
                     </p>
                 </div>
 

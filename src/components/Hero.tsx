@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { ArrowRight, MousePointer2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,7 +18,6 @@ export default function Hero() {
 
     const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
     const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
-    const blur = useTransform(scrollYProgress, [0, 0.2], [20, 0]);
 
     return (
         <section

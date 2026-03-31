@@ -2,10 +2,11 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { Brain, Cpu, Layout, Sparkles, Layers, Box, MousePointer2 } from "lucide-react";
-import React, { useRef } from "react";
+import { motion, useTransform, useSpring, useMotionValue } from "framer-motion";
+import { Cpu, Layout, Layers, Box, MousePointer2 } from "lucide-react";
+import React from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const FeatureCard = ({ title, desc, icon: Icon, color }: any) => {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -65,7 +66,7 @@ export default function FeaturesPage() {
                         <span className="text-gradient">Capabilities.</span>
                     </h1>
                     <p className="text-2xl text-muted-foreground font-medium max-w-2xl mx-auto">
-                        We've built a testing engine that feels less like a quiz and more like a high-performance simulation. Discover the technology driving 98.4% accuracy.
+                        We&apos;ve built a testing engine that feels less like a quiz and more like a high-performance simulation. Discover the technology driving 98.4% accuracy.
                     </p>
                 </div>
 

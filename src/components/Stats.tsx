@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { Briefcase, Users, Rocket, TrendingUp, Award, Target } from "lucide-react";
+import { Users, TrendingUp, Award, Target } from "lucide-react";
 import { useRef, useEffect } from "react";
 
 function Counter({ value, duration = 2.5 }: { value: string; duration?: number }) {
@@ -103,7 +103,7 @@ export default function OutcomeSection() {
                                 <span className="text-gradient">Drive Change.</span>
                             </h2>
                             <p className="text-xl text-muted-foreground font-medium max-w-lg">
-                                We've already helped thousands of students transition from overwhelmed to purposeful. Our methodology is built on 35+ years of combined psychological expertise.
+                                We&apos;ve already helped thousands of students transition from overwhelmed to purposeful. Our methodology is built on 35+ years of combined psychological expertise.
                             </p>
                         </div>
 

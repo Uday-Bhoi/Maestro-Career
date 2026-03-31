@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { useRef } from "react";
 import { ClipboardList, BrainCircuit, Lightbulb, Rocket, Sparkles } from "lucide-react";
 
