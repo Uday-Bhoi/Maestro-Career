@@ -26,6 +26,11 @@ export async function POST(req: NextRequest) {
             name: body?.name ?? "",
             preferredServices: Array.isArray(body?.preferredServices) ? body.preferredServices : [],
             password: body?.password ?? "",
+            userType: body?.userType,
+            studyField: body?.studyField,
+            domain: body?.domain,
+            companyRole: body?.companyRole,
+            city: body?.city,
         });
 
         return NextResponse.json({

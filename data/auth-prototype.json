@@ -5,6 +5,7 @@
       "name": "Ameya Bhagat",
       "email": "ameyabhagat24@gmail.com",
       "mobile": "7039924401",
+      "countryCode": "+1",
       "dateOfBirth": "",
       "termsAcceptedAt": "2026-03-27T16:09:46.621Z",
       "onboardingCompleted": false,
@@ -21,11 +22,70 @@
         "Psychometric Assessment",
         "Interview Prep"
       ]
+    },
+    {
+      "id": "f3595d41-3691-45c4-8fa5-dc7eda455e87",
+      "name": "Ameya Bhagat",
+      "email": "testmanthan@gmail.com",
+      "mobile": "+917039924401",
+      "countryCode": "+91",
+      "dateOfBirth": "2001-04-24T00:00:00.000Z",
+      "termsAcceptedAt": "2026-03-31T12:05:17.850Z",
+      "onboardingCompleted": true,
+      "passwordHash": "5f209c9d416190c25b6eee16f9d06b9685c9b0ce2ba1032f8bf6fc30cd78b10b2630764c97f11434c3de3a33dd24b2c4cf1ec03d9a052a5af4ac8fbf8be216dc",
+      "passwordSalt": "731572d6c33ea2ff29bf2d8d4b3324d6",
+      "createdAt": "2026-03-31T12:05:25.888Z",
+      "updatedAt": "2026-03-31T12:13:57.228Z",
+      "lastLoginAt": "2026-03-31T12:13:57.228Z",
+      "lastLoginMethod": "otp",
+      "loginCount": 3,
+      "inquiryCount": 0,
+      "preferredServices": [],
+      "userType": "student",
+      "studyField": "MCA",
+      "city": "Thane"
     }
   ],
   "otpChallenges": [],
-  "sessions": [],
+  "sessions": [
+    {
+      "id": "cd411f1b-1518-42cc-bd1e-f7299d51d46d",
+      "userId": "f3595d41-3691-45c4-8fa5-dc7eda455e87",
+      "tokenHash": "c41b66ae5f4bb59e1db3d8baf6d292f8814e3559ca4811651f25e8955d4a895f",
+      "createdAt": "2026-03-31T12:05:25.889Z",
+      "expiresAt": "2026-04-30T12:05:25.889Z"
+    }
+  ],
+  "passwordResetSessions": [],
   "activities": [
+    {
+      "id": "c474e8fc-4e77-4d67-b31b-e8639110bc3b",
+      "userId": "f3595d41-3691-45c4-8fa5-dc7eda455e87",
+      "type": "login",
+      "message": "Logged in via MOBILE OTP.",
+      "at": "2026-03-31T12:13:57.228Z"
+    },
+    {
+      "id": "1221ecee-8093-45a7-b5c9-b3caec89a264",
+      "userId": "f3595d41-3691-45c4-8fa5-dc7eda455e87",
+      "type": "login",
+      "message": "Logged in via MOBILE OTP.",
+      "at": "2026-03-31T12:05:59.385Z"
+    },
+    {
+      "id": "de393691-17e2-4182-8293-11e7e17157a2",
+      "userId": "f3595d41-3691-45c4-8fa5-dc7eda455e87",
+      "type": "profile",
+      "message": "Completed profile setup.",
+      "at": "2026-03-31T12:05:37.044Z"
+    },
+    {
+      "id": "9f833aed-059a-4897-85ee-faa4b636dfe3",
+      "userId": "f3595d41-3691-45c4-8fa5-dc7eda455e87",
+      "type": "registration",
+      "message": "Completed registration via OTP verification.",
+      "at": "2026-03-31T12:05:25.889Z"
+    },
     {
       "id": "81d5e95f-d14c-4b8e-a3b5-875ccba4b132",
       "userId": "69341e07-1468-4311-8e4a-e64d0e3361a7",

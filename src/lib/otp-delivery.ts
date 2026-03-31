@@ -4,7 +4,7 @@ export interface OtpDeliveryPayload {
     channel: OtpChannel;
     target: string;
     otp: string;
-    purpose: "register" | "login";
+    purpose: "register" | "login" | "forgot_password";
 }
 
 function ensureRequiredEnv(name: string) {
@@ -27,7 +27,9 @@ async function sendViaTwilio(payload: OtpDeliveryPayload) {
 
     const body = payload.purpose === "register"
         ? `Your Maestro registration OTP is ${payload.otp}. It expires in 5 minutes.`
-        : `Your Maestro login OTP is ${payload.otp}. It expires in 5 minutes.`;
+        : payload.purpose === "login"
+            ? `Your Maestro login OTP is ${payload.otp}. It expires in 5 minutes.`
+            : `Your Maestro password reset OTP is ${payload.otp}. It expires in 5 minutes.`;
 
     const form = new URLSearchParams({
         To: payload.channel === "whatsapp" ? `whatsapp:${to}` : to,
@@ -70,11 +72,18 @@ async function sendViaResend(payload: OtpDeliveryPayload) {
         body: JSON.stringify({
             from: fromEmail,
             to: [payload.target],
-            subject: payload.purpose === "register" ? "Your registration OTP" : "Your login OTP",
+            subject:
+                payload.purpose === "register"
+                    ? "Your registration OTP"
+                    : payload.purpose === "login"
+                        ? "Your login OTP"
+                        : "Your password reset OTP",
             text:
                 payload.purpose === "register"
                     ? `Your Maestro registration OTP is ${payload.otp}. It expires in 5 minutes.`
-                    : `Your Maestro login OTP is ${payload.otp}. It expires in 5 minutes.`,
+                    : payload.purpose === "login"
+                        ? `Your Maestro login OTP is ${payload.otp}. It expires in 5 minutes.`
+                        : `Your Maestro password reset OTP is ${payload.otp}. It expires in 5 minutes.`,
         }),
     });
 

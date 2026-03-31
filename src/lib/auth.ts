@@ -9,15 +9,16 @@ export const AUTH_COOKIE_NAME = "maestro_auth_session";
 const MIN_SIGNUP_AGE = 13;
 
 type LoginMethod = "otp" | "password";
-type OtpPurpose = "register" | "login";
-
+type OtpPurpose = "register" | "login" | "forgot_password";
 type OtpChannel = "mobile" | "email";
+type UserType = "student" | "working_professional";
 
 interface User {
     id: string;
     name: string;
     email: string;
     mobile: string;
+    countryCode: string;
     dateOfBirth: string;
     termsAcceptedAt: string;
     onboardingCompleted: boolean;
@@ -30,6 +31,11 @@ interface User {
     loginCount: number;
     inquiryCount: number;
     preferredServices: string[];
+    userType?: UserType;
+    studyField?: string;
+    domain?: string;
+    companyRole?: string;
+    city?: string;
 }
 
 interface OtpChallenge {
@@ -44,10 +50,14 @@ interface OtpChallenge {
     attempts: number;
     createdAt: string;
     registerPayload?: {
-        identifier: string;
-        channel: OtpChannel;
+        fullName: string;
+        email: string;
+        mobile: string;
+        countryCode: string;
         dateOfBirth: string;
         termsAcceptedAt: string;
+        passwordHash: string;
+        passwordSalt: string;
     };
     userId?: string;
 }
@@ -60,10 +70,18 @@ interface Session {
     expiresAt: string;
 }
 
+interface PasswordResetSession {
+    id: string;
+    userId: string;
+    tokenHash: string;
+    createdAt: string;
+    expiresAt: string;
+}
+
 interface UserActivity {
     id: string;
     userId: string;
-    type: "registration" | "login" | "profile";
+    type: "registration" | "login" | "profile" | "password_reset";
     message: string;
     at: string;
 }
@@ -72,6 +90,7 @@ interface AuthDb {
     users: User[];
     otpChallenges: OtpChallenge[];
     sessions: Session[];
+    passwordResetSessions: PasswordResetSession[];
     activities: UserActivity[];
 }
 
@@ -80,6 +99,7 @@ interface PublicUser {
     name: string;
     email: string;
     mobile: string;
+    countryCode: string;
     onboardingCompleted: boolean;
     hasPassword: boolean;
     createdAt: string;
@@ -89,6 +109,11 @@ interface PublicUser {
     loginCount: number;
     inquiryCount: number;
     preferredServices: string[];
+    userType?: UserType;
+    studyField?: string;
+    domain?: string;
+    companyRole?: string;
+    city?: string;
 }
 
 interface DashboardData {
@@ -103,11 +128,13 @@ interface DashboardData {
 }
 
 const DB_PATH = path.join(process.cwd(), "data", "auth-prototype.json");
+const PASSWORD_RESET_TTL_MS = 10 * 60 * 1000;
 
 const DEFAULT_DB: AuthDb = {
     users: [],
     otpChallenges: [],
     sessions: [],
+    passwordResetSessions: [],
     activities: [],
 };
 
@@ -119,12 +146,26 @@ function sha256(value: string) {
     return createHash("sha256").update(value).digest("hex");
 }
 
-function normalizeMobile(value: string) {
-    return value.replace(/\D/g, "");
-}
-
 function normalizeEmail(value: string) {
     return value.trim().toLowerCase();
+}
+
+function normalizeCountryCode(value: string) {
+    const digits = String(value ?? "").replace(/\D/g, "");
+    if (!digits) {
+        return "+1";
+    }
+    return `+${digits}`;
+}
+
+function normalizeMobileLocal(value: string) {
+    return String(value ?? "").replace(/\D/g, "");
+}
+
+function normalizeMobileWithCountryCode(countryCode: string, mobile: string) {
+    const normalizedCountryCode = normalizeCountryCode(countryCode);
+    const mobileDigits = normalizeMobileLocal(mobile);
+    return `${normalizedCountryCode}${mobileDigits}`;
 }
 
 function normalizeIdentifier(identifier: string) {
@@ -132,15 +173,19 @@ function normalizeIdentifier(identifier: string) {
     if (trimmed.includes("@")) {
         return { channel: "email" as const, value: normalizeEmail(trimmed) };
     }
-    return { channel: "mobile" as const, value: normalizeMobile(trimmed) };
+
+    const withPlus = trimmed.startsWith("+") ? trimmed : `+${trimmed}`;
+    const value = `+${withPlus.replace(/\D/g, "")}`;
+    return { channel: "mobile" as const, value };
 }
 
 function maskValue(channel: OtpChannel, value: string) {
     if (channel === "mobile") {
-        if (value.length <= 4) {
+        const mobileDigits = value.replace(/\D/g, "");
+        if (mobileDigits.length <= 4) {
             return value;
         }
-        return `${"*".repeat(Math.max(value.length - 4, 0))}${value.slice(-4)}`;
+        return `${value.slice(0, 3)}${"*".repeat(Math.max(mobileDigits.length - 7, 2))}${mobileDigits.slice(-4)}`;
     }
 
     const [name, domain] = value.split("@");
@@ -152,6 +197,36 @@ function maskValue(channel: OtpChannel, value: string) {
     }
 
     return `${name[0]}${"*".repeat(Math.max(name.length - 2, 1))}${name[name.length - 1]}@${domain}`;
+}
+
+function isValidEmail(value: string) {
+    return /^\S+@\S+\.\S+$/.test(value);
+}
+
+function isValidMobile(value: string) {
+    return /^\+\d{8,15}$/.test(value);
+}
+
+function isValidName(value: string) {
+    return /^[A-Za-z][A-Za-z .'-]{1,99}$/.test(value.trim());
+}
+
+function validateStrongPassword(password: string) {
+    if (password.length < 8) {
+        throw new Error("Password must be at least 8 characters.");
+    }
+    if (!/[A-Z]/.test(password)) {
+        throw new Error("Password must include at least 1 uppercase letter.");
+    }
+    if (!/[a-z]/.test(password)) {
+        throw new Error("Password must include at least 1 lowercase letter.");
+    }
+    if (!/\d/.test(password)) {
+        throw new Error("Password must include at least 1 number.");
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+        throw new Error("Password must include at least 1 special character.");
+    }
 }
 
 function hashPassword(password: string, salt: string) {
@@ -203,7 +278,8 @@ function normalizeExistingUser(raw: Partial<User>): User {
         id: String(raw.id ?? randomUUID()),
         name: String(raw.name ?? "Learner"),
         email: normalizeEmail(String(raw.email ?? "")),
-        mobile: normalizeMobile(String(raw.mobile ?? "")),
+        mobile: String(raw.mobile ?? ""),
+        countryCode: String(raw.countryCode ?? "+1"),
         dateOfBirth: String(raw.dateOfBirth ?? ""),
         termsAcceptedAt: String(raw.termsAcceptedAt ?? raw.createdAt ?? nowIso()),
         onboardingCompleted: Boolean(raw.onboardingCompleted ?? false),
@@ -216,6 +292,11 @@ function normalizeExistingUser(raw: Partial<User>): User {
         loginCount: Number(raw.loginCount ?? 0),
         inquiryCount: Number(raw.inquiryCount ?? 0),
         preferredServices: Array.isArray(raw.preferredServices) ? raw.preferredServices : [],
+        userType: raw.userType,
+        studyField: raw.studyField,
+        domain: raw.domain,
+        companyRole: raw.companyRole,
+        city: raw.city,
     };
 }
 
@@ -223,6 +304,7 @@ function cleanupDb(db: AuthDb) {
     const now = Date.now();
     db.otpChallenges = db.otpChallenges.filter((item) => new Date(item.expiresAt).getTime() > now);
     db.sessions = db.sessions.filter((item) => new Date(item.expiresAt).getTime() > now);
+    db.passwordResetSessions = db.passwordResetSessions.filter((item) => new Date(item.expiresAt).getTime() > now);
 }
 
 async function ensureDbFile() {
@@ -244,6 +326,7 @@ async function readDb(): Promise<AuthDb> {
         users: (parsed.users ?? []).map((user) => normalizeExistingUser(user)),
         otpChallenges: (parsed.otpChallenges ?? []) as OtpChallenge[],
         sessions: (parsed.sessions ?? []) as Session[],
+        passwordResetSessions: (parsed.passwordResetSessions ?? []) as PasswordResetSession[],
         activities: (parsed.activities ?? []) as UserActivity[],
     };
 
@@ -262,6 +345,7 @@ function toPublicUser(user: User): PublicUser {
         name: user.name,
         email: user.email,
         mobile: user.mobile,
+        countryCode: user.countryCode,
         onboardingCompleted: user.onboardingCompleted,
         hasPassword: Boolean(user.passwordHash && user.passwordSalt),
         createdAt: user.createdAt,
@@ -271,6 +355,11 @@ function toPublicUser(user: User): PublicUser {
         loginCount: user.loginCount,
         inquiryCount: user.inquiryCount,
         preferredServices: user.preferredServices,
+        userType: user.userType,
+        studyField: user.studyField,
+        domain: user.domain,
+        companyRole: user.companyRole,
+        city: user.city,
     };
 }
 
@@ -301,21 +390,34 @@ function applySuccessfulLogin(user: User, method: LoginMethod) {
 }
 
 export async function requestRegistrationOtp(input: {
-    identifier: string;
+    fullName: string;
+    email: string;
+    mobile: string;
+    countryCode: string;
+    password: string;
     dateOfBirth: string;
     acceptedTerms: boolean;
 }) {
-    const normalized = normalizeIdentifier(input.identifier);
+    const fullName = String(input.fullName ?? "").trim();
+    const email = normalizeEmail(input.email);
+    const countryCode = normalizeCountryCode(input.countryCode);
+    const mobile = normalizeMobileWithCountryCode(countryCode, input.mobile);
+    const password = String(input.password ?? "").trim();
 
-    if (normalized.channel === "mobile" && normalized.value.length < 10) {
-        throw new Error("Enter a valid mobile number.");
+    if (!isValidName(fullName)) {
+        throw new Error("Enter a valid full name.");
     }
-    if (normalized.channel === "email" && !/^\S+@\S+\.\S+$/.test(normalized.value)) {
+    if (!isValidEmail(email)) {
         throw new Error("Enter a valid email address.");
+    }
+    if (!isValidMobile(mobile)) {
+        throw new Error("Enter a valid mobile number with country code.");
     }
     if (!input.acceptedTerms) {
         throw new Error("You must accept terms and privacy policy to continue.");
     }
+
+    validateStrongPassword(password);
 
     const age = calculateAgeYears(input.dateOfBirth);
     if (age < MIN_SIGNUP_AGE) {
@@ -326,64 +428,88 @@ export async function requestRegistrationOtp(input: {
     }
 
     const db = await readDb();
-    const duplicate = findUserByIdentifier(db, normalized.value);
-    if (duplicate) {
-        throw new Error("An account already exists for this mobile/email.");
+    const duplicateEmail = db.users.find((user) => user.email === email);
+    if (duplicateEmail) {
+        throw new Error("An account already exists for this email address.");
+    }
+
+    const duplicateMobile = db.users.find((user) => user.mobile === mobile);
+    if (duplicateMobile) {
+        throw new Error("An account already exists for this mobile number.");
     }
 
     db.otpChallenges = db.otpChallenges.filter(
-        (challenge) => !(challenge.purpose === "register" && challenge.identifier === normalized.value)
+        (challenge) => !(challenge.purpose === "register" && challenge.registerPayload?.email === email)
     );
 
     const otp = generateOtp();
     const otpSalt = randomBytes(16).toString("hex");
+    const passwordSalt = randomBytes(16).toString("hex");
+
+    await Promise.all([
+        deliverOtp({
+            channel: "email",
+            target: email,
+            otp,
+            purpose: "register",
+        }),
+        deliverOtp({
+            channel: "mobile",
+            target: mobile,
+            otp,
+            purpose: "register",
+        }),
+    ]);
 
     const challenge: OtpChallenge = {
         id: randomUUID(),
         purpose: "register",
-        identifier: normalized.value,
-        channel: normalized.channel,
+        identifier: email,
+        channel: "email",
         otpHash: hashOtp(otp, otpSalt),
         otpSalt,
         expiresAt: new Date(Date.now() + AUTH_CONFIG.otpTtlMs).toISOString(),
         attempts: 0,
         createdAt: nowIso(),
         registerPayload: {
-            identifier: normalized.value,
-            channel: normalized.channel,
+            fullName,
+            email,
+            mobile,
+            countryCode,
             dateOfBirth: new Date(input.dateOfBirth).toISOString(),
             termsAcceptedAt: nowIso(),
+            passwordHash: hashPassword(password, passwordSalt),
+            passwordSalt,
         },
     };
-
-    await deliverOtp({
-        channel: normalized.channel,
-        target: normalized.value,
-        otp,
-        purpose: "register",
-    });
 
     db.otpChallenges.push(challenge);
     await writeDb(db);
 
     return {
-        target: maskValue(normalized.channel, normalized.value),
-        channel: normalized.channel,
-        ...(AUTH_CONFIG.debugOtpEnabled ? { debugOtp: otp } : {}),
+        emailTarget: maskValue("email", email),
+        mobileTarget: maskValue("mobile", mobile),
         expiresInSeconds: Math.floor(AUTH_CONFIG.otpTtlMs / 1000),
+        ...(AUTH_CONFIG.debugOtpEnabled ? { debugOtp: otp } : {}),
     };
 }
 
-export async function verifyRegistrationOtp(input: { identifier: string; otp: string }) {
-    const normalized = normalizeIdentifier(input.identifier);
-    const otp = input.otp.trim();
+export async function verifyRegistrationOtp(input: {
+    email: string;
+    mobile: string;
+    countryCode: string;
+    otp: string;
+}) {
+    const email = normalizeEmail(input.email);
+    const mobile = normalizeMobileWithCountryCode(input.countryCode, input.mobile);
+    const otp = String(input.otp ?? "").trim();
     const db = await readDb();
 
     const challenge = db.otpChallenges.find(
-        (item) => item.purpose === "register" && item.identifier === normalized.value
+        (item) => item.purpose === "register" && item.registerPayload?.email === email
     );
 
-    if (!challenge || !challenge.registerPayload) {
+    if (!challenge || !challenge.registerPayload || challenge.registerPayload.mobile !== mobile) {
         throw new Error(
             AUTH_CONFIG.strictAuthErrors
                 ? "Invalid or expired OTP. Please request a new OTP."
@@ -411,25 +537,33 @@ export async function verifyRegistrationOtp(input: { identifier: string; otp: st
         );
     }
 
-    const duplicate = findUserByIdentifier(db, challenge.registerPayload.identifier);
-    if (duplicate) {
+    const registerPayload = challenge.registerPayload;
+
+    const duplicateEmail = db.users.find((user) => user.email === registerPayload.email);
+    if (duplicateEmail) {
         db.otpChallenges = db.otpChallenges.filter((item) => item.id !== challenge.id);
         await writeDb(db);
-        throw new Error("An account already exists for this mobile/email.");
+        throw new Error("An account already exists for this email address.");
     }
 
-    const isEmail = challenge.registerPayload.channel === "email";
+    const duplicateMobile = db.users.find((user) => user.mobile === registerPayload.mobile);
+    if (duplicateMobile) {
+        db.otpChallenges = db.otpChallenges.filter((item) => item.id !== challenge.id);
+        await writeDb(db);
+        throw new Error("An account already exists for this mobile number.");
+    }
 
     const user: User = {
         id: randomUUID(),
-        name: "Learner",
-        email: isEmail ? challenge.registerPayload.identifier : "",
-        mobile: isEmail ? "" : challenge.registerPayload.identifier,
-        dateOfBirth: challenge.registerPayload.dateOfBirth,
-        termsAcceptedAt: challenge.registerPayload.termsAcceptedAt,
+        name: registerPayload.fullName,
+        email: registerPayload.email,
+        mobile: registerPayload.mobile,
+        countryCode: registerPayload.countryCode,
+        dateOfBirth: registerPayload.dateOfBirth,
+        termsAcceptedAt: registerPayload.termsAcceptedAt,
         onboardingCompleted: false,
-        passwordHash: "",
-        passwordSalt: "",
+        passwordHash: registerPayload.passwordHash,
+        passwordSalt: registerPayload.passwordSalt,
         createdAt: nowIso(),
         updatedAt: nowIso(),
         loginCount: 0,
@@ -441,7 +575,7 @@ export async function verifyRegistrationOtp(input: { identifier: string; otp: st
 
     db.users.push(user);
     db.otpChallenges = db.otpChallenges.filter((item) => item.id !== challenge.id);
-    addActivity(db, user.id, "registration", `Completed registration via ${challenge.channel.toUpperCase()} OTP.`);
+    addActivity(db, user.id, "registration", "Completed registration via OTP verification.");
 
     const sessionToken = randomBytes(32).toString("hex");
     db.sessions.push({
@@ -462,10 +596,10 @@ export async function verifyRegistrationOtp(input: { identifier: string; otp: st
 
 export async function requestLoginOtp(input: { identifier: string }) {
     const normalized = normalizeIdentifier(input.identifier);
-    if (normalized.channel === "mobile" && normalized.value.length < 10) {
-        throw new Error("Enter a valid mobile number.");
+    if (normalized.channel === "mobile" && !isValidMobile(normalized.value)) {
+        throw new Error("Enter a valid mobile number with country code.");
     }
-    if (normalized.channel === "email" && !/^\S+@\S+\.\S+$/.test(normalized.value)) {
+    if (normalized.channel === "email" && !isValidEmail(normalized.value)) {
         throw new Error("Enter a valid email address.");
     }
 
@@ -622,9 +756,168 @@ export async function loginWithPassword(input: { identifier: string; password: s
     };
 }
 
+export async function requestForgotPasswordOtp(input: { identifier: string }) {
+    const normalized = normalizeIdentifier(input.identifier);
+    if (normalized.channel === "mobile" && !isValidMobile(normalized.value)) {
+        throw new Error("Enter a valid mobile number with country code.");
+    }
+    if (normalized.channel === "email" && !isValidEmail(normalized.value)) {
+        throw new Error("Enter a valid email address.");
+    }
+
+    const db = await readDb();
+    const user = findUserByIdentifier(db, normalized.value);
+    if (!user && !AUTH_CONFIG.strictAuthErrors) {
+        throw new Error("No account found for the provided identifier.");
+    }
+
+    db.otpChallenges = db.otpChallenges.filter(
+        (challenge) => !(challenge.purpose === "forgot_password" && challenge.identifier === normalized.value)
+    );
+
+    const otp = generateOtp();
+    const otpSalt = randomBytes(16).toString("hex");
+
+    if (user) {
+        const challenge: OtpChallenge = {
+            id: randomUUID(),
+            purpose: "forgot_password",
+            identifier: normalized.value,
+            channel: normalized.channel,
+            otpHash: hashOtp(otp, otpSalt),
+            otpSalt,
+            expiresAt: new Date(Date.now() + AUTH_CONFIG.otpTtlMs).toISOString(),
+            attempts: 0,
+            createdAt: nowIso(),
+            userId: user.id,
+        };
+
+        await deliverOtp({
+            channel: normalized.channel,
+            target: normalized.value,
+            otp,
+            purpose: "forgot_password",
+        });
+
+        db.otpChallenges.push(challenge);
+        await writeDb(db);
+    }
+
+    return {
+        target: maskValue(normalized.channel, normalized.value),
+        channel: normalized.channel,
+        ...(AUTH_CONFIG.debugOtpEnabled && user ? { debugOtp: otp } : {}),
+        expiresInSeconds: Math.floor(AUTH_CONFIG.otpTtlMs / 1000),
+    };
+}
+
+export async function verifyForgotPasswordOtp(input: { identifier: string; otp: string }) {
+    const normalized = normalizeIdentifier(input.identifier);
+    const otp = String(input.otp ?? "").trim();
+    const db = await readDb();
+
+    const challenge = db.otpChallenges.find(
+        (item) => item.purpose === "forgot_password" && item.identifier === normalized.value
+    );
+
+    if (!challenge || !challenge.userId) {
+        throw new Error(
+            AUTH_CONFIG.strictAuthErrors
+                ? "Invalid or expired OTP. Please request a new OTP."
+                : "No active reset OTP found. Please request a new OTP."
+        );
+    }
+
+    if (challenge.attempts >= AUTH_CONFIG.otpMaxAttempts) {
+        db.otpChallenges = db.otpChallenges.filter((item) => item.id !== challenge.id);
+        await writeDb(db);
+        throw new Error(
+            AUTH_CONFIG.strictAuthErrors
+                ? "Invalid or expired OTP. Please request a new OTP."
+                : "Too many invalid attempts. Please request a new OTP."
+        );
+    }
+
+    if (!compareHashedOtp(challenge, otp)) {
+        challenge.attempts += 1;
+        await writeDb(db);
+        throw new Error(
+            AUTH_CONFIG.strictAuthErrors
+                ? "Invalid or expired OTP. Please request a new OTP."
+                : "Invalid OTP."
+        );
+    }
+
+    const user = db.users.find((item) => item.id === challenge.userId);
+    if (!user) {
+        db.otpChallenges = db.otpChallenges.filter((item) => item.id !== challenge.id);
+        await writeDb(db);
+        throw new Error("User account no longer exists.");
+    }
+
+    const resetToken = randomBytes(32).toString("hex");
+    db.passwordResetSessions.push({
+        id: randomUUID(),
+        userId: user.id,
+        tokenHash: sha256(resetToken),
+        createdAt: nowIso(),
+        expiresAt: new Date(Date.now() + PASSWORD_RESET_TTL_MS).toISOString(),
+    });
+
+    db.otpChallenges = db.otpChallenges.filter((item) => item.id !== challenge.id);
+    await writeDb(db);
+
+    return {
+        resetToken,
+        expiresInSeconds: Math.floor(PASSWORD_RESET_TTL_MS / 1000),
+    };
+}
+
+export async function resetPasswordWithToken(input: { resetToken: string; password: string }) {
+    const token = String(input.resetToken ?? "").trim();
+    const password = String(input.password ?? "").trim();
+    if (!token) {
+        throw new Error("Invalid reset session.");
+    }
+
+    validateStrongPassword(password);
+
+    const db = await readDb();
+    const tokenHash = sha256(token);
+    const resetSession = db.passwordResetSessions.find((item) => item.tokenHash === tokenHash);
+    if (!resetSession) {
+        throw new Error("Invalid or expired reset session.");
+    }
+
+    const user = db.users.find((item) => item.id === resetSession.userId);
+    if (!user) {
+        throw new Error("User account no longer exists.");
+    }
+
+    const salt = randomBytes(16).toString("hex");
+    user.passwordSalt = salt;
+    user.passwordHash = hashPassword(password, salt);
+    user.updatedAt = nowIso();
+
+    db.passwordResetSessions = db.passwordResetSessions.filter((item) => item.id !== resetSession.id);
+    addActivity(db, user.id, "password_reset", "Password reset completed via OTP.");
+    await writeDb(db);
+
+    return { success: true };
+}
+
 export async function completeProfileFromSessionToken(
     token: string | undefined,
-    input: { name: string; preferredServices: string[]; password?: string }
+    input: {
+        name: string;
+        preferredServices?: string[];
+        password?: string;
+        userType?: UserType;
+        studyField?: string;
+        domain?: string;
+        companyRole?: string;
+        city?: string;
+    }
 ) {
     if (!token) {
         throw new Error("Unauthorized");
@@ -642,30 +935,66 @@ export async function completeProfileFromSessionToken(
         throw new Error("Unauthorized");
     }
 
-    const name = input.name.trim();
-    if (name.length < 2) {
-        throw new Error("Name must be at least 2 characters.");
+    const name = String(input.name ?? "").trim();
+    if (!isValidName(name)) {
+        throw new Error("Enter a valid full name.");
     }
 
-    const preferredServices = input.preferredServices
+    const preferredServices = (input.preferredServices ?? [])
         .map((item) => item.trim())
         .filter(Boolean)
         .slice(0, 5);
 
     user.name = name;
     user.preferredServices = preferredServices;
-    user.onboardingCompleted = true;
+
+    const userType = input.userType;
+    if (userType) {
+        if (userType !== "student" && userType !== "working_professional") {
+            throw new Error("Choose a valid user type.");
+        }
+
+        user.userType = userType;
+        user.studyField = undefined;
+        user.domain = undefined;
+        user.companyRole = undefined;
+
+        if (userType === "student") {
+            const studyField = String(input.studyField ?? "").trim();
+            if (studyField.length < 2) {
+                throw new Error("Please enter what you are studying.");
+            }
+            user.studyField = studyField;
+        }
+
+        if (userType === "working_professional") {
+            const domain = String(input.domain ?? "").trim();
+            const companyRole = String(input.companyRole ?? "").trim();
+            if (domain.length < 2) {
+                throw new Error("Please enter your domain or industry.");
+            }
+            if (companyRole.length < 2) {
+                throw new Error("Please enter your company name or role.");
+            }
+            user.domain = domain;
+            user.companyRole = companyRole;
+        }
+    }
+
+    const city = String(input.city ?? "").trim();
+    if (city) {
+        user.city = city;
+    }
 
     const password = input.password?.trim() ?? "";
     if (password) {
-        if (password.length < 8) {
-            throw new Error("Password must be at least 8 characters.");
-        }
+        validateStrongPassword(password);
         const salt = randomBytes(16).toString("hex");
         user.passwordSalt = salt;
         user.passwordHash = hashPassword(password, salt);
     }
 
+    user.onboardingCompleted = true;
     user.updatedAt = nowIso();
     addActivity(db, user.id, "profile", "Completed profile setup.");
     await writeDb(db);

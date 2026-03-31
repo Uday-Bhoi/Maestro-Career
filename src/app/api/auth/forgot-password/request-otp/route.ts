@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requestRegistrationOtp } from "@/lib/auth";
+import { requestForgotPasswordOtp } from "@/lib/auth";
 import { consumeRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     try {
         const ip = getClientIp(req.headers);
         const ipRate = consumeRateLimit({
-            key: `auth:register:request:ip:${ip}`,
+            key: `auth:forgot:request:ip:${ip}`,
             limit: 20,
             windowMs: 10 * 60 * 1000,
         });
@@ -20,11 +20,11 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const email = String(body?.email ?? "").trim().toLowerCase();
-        if (email) {
+        const identifier = String(body?.identifier ?? "").trim().toLowerCase();
+        if (identifier) {
             const identifierRate = consumeRateLimit({
-                key: `auth:register:request:email:${email}`,
-                limit: 5,
+                key: `auth:forgot:request:identifier:${identifier}`,
+                limit: 6,
                 windowMs: 10 * 60 * 1000,
             });
             if (!identifierRate.ok) {
@@ -35,23 +35,15 @@ export async function POST(req: Request) {
             }
         }
 
-        const result = await requestRegistrationOtp({
-            fullName: body?.fullName ?? "",
-            email: body?.email ?? "",
-            mobile: body?.mobile ?? "",
-            countryCode: body?.countryCode ?? "+1",
-            password: body?.password ?? "",
-            dateOfBirth: body?.dateOfBirth ?? "",
-            acceptedTerms: Boolean(body?.acceptedTerms),
+        const result = await requestForgotPasswordOtp({
+            identifier: body?.identifier ?? "",
         });
 
         return NextResponse.json({
             success: true,
-            message: "OTP sent to your email and mobile number.",
-            targets: {
-                email: result.emailTarget,
-                mobile: result.mobileTarget,
-            },
+            message: `OTP sent to your ${result.channel}.`,
+            target: result.target,
+            channel: result.channel,
             expiresInSeconds: result.expiresInSeconds,
             ...(result.debugOtp ? { debugOtp: result.debugOtp } : {}),
         });

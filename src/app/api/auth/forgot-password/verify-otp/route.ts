@@ -1,9 +1,5 @@
 import { NextResponse } from "next/server";
-import {
-    AUTH_COOKIE_NAME,
-    getCookieMaxAgeSeconds,
-    verifyRegistrationOtp,
-} from "@/lib/auth";
+import { verifyForgotPasswordOtp } from "@/lib/auth";
 import { consumeRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -12,8 +8,8 @@ export async function POST(req: Request) {
     try {
         const ip = getClientIp(req.headers);
         const ipRate = consumeRateLimit({
-            key: `auth:register:verify:ip:${ip}`,
-            limit: 30,
+            key: `auth:forgot:verify:ip:${ip}`,
+            limit: 40,
             windowMs: 10 * 60 * 1000,
         });
         if (!ipRate.ok) {
@@ -24,11 +20,11 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const email = String(body?.email ?? "").trim().toLowerCase();
-        if (email) {
+        const identifier = String(body?.identifier ?? "").trim().toLowerCase();
+        if (identifier) {
             const identifierRate = consumeRateLimit({
-                key: `auth:register:verify:email:${email}`,
-                limit: 8,
+                key: `auth:forgot:verify:identifier:${identifier}`,
+                limit: 10,
                 windowMs: 10 * 60 * 1000,
             });
             if (!identifierRate.ok) {
@@ -39,30 +35,17 @@ export async function POST(req: Request) {
             }
         }
 
-        const result = await verifyRegistrationOtp({
-            email: body?.email ?? "",
-            mobile: body?.mobile ?? "",
-            countryCode: body?.countryCode ?? "+1",
+        const result = await verifyForgotPasswordOtp({
+            identifier: body?.identifier ?? "",
             otp: body?.otp ?? "",
         });
 
-        const response = NextResponse.json({
+        return NextResponse.json({
             success: true,
-            message: "Registration completed successfully.",
-            user: result.user,
+            message: "OTP verified successfully.",
+            resetToken: result.resetToken,
+            expiresInSeconds: result.expiresInSeconds,
         });
-
-        response.cookies.set({
-            name: AUTH_COOKIE_NAME,
-            value: result.sessionToken,
-            httpOnly: true,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === "production",
-            path: "/",
-            maxAge: getCookieMaxAgeSeconds(),
-        });
-
-        return response;
     } catch (error) {
         const message = error instanceof Error ? error.message : "Unable to verify OTP.";
         return NextResponse.json({ success: false, message }, { status: 400 });
