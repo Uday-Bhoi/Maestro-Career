@@ -3,56 +3,93 @@ export interface Plan {
     name: string;
     priceInr: number;
     description: string;
-    summary: string;
     features: string[];
+    extraFeatures?: string[];
     mostPopular?: boolean;
+    color: string;
 }
 
 export const PLANS: Plan[] = [
     {
-        id: "starter",
-        name: "Starter",
-        priceInr: 1999,
-        description: "Perfect for students beginning their career clarity journey.",
-        summary:
-            "A focused kickoff package with guided mapping, baseline assessment, and action checkpoints to start moving with confidence.",
+        id: "startup",
+        name: "Startup",
+        priceInr: 5000,
+        description: "Essential guidance for starting your career journey.",
+        color: "blue",
         features: [
-            "Career orientation call",
-            "Initial aptitude mapping",
-            "Email support for 14 days",
-            "Personalized first-step roadmap",
+            "Pre-Career Counselling 1-1 Session (30 Min)",
+            "Student Psychometric Analysis Test",
+            "Student Parent Psychometric Evaluation (1 Session)",
+            "Customize Career Discovery Planning Report",
+            "General Career Sensitization & Awareness (Group)",
+        ],
+        extraFeatures: [
+            "Live Group Sessions for Career Building",
+            "Lifetime Access to the Career Library",
+            "New Age Career Opportunities After 12 (Group)",
+            "Foreign Education & Scholarship Awareness (Group)",
+            "Industry-Job Specific Technology Skill (Group)",
+            "Live 1-1 Session: 1 session",
+            "Career Suitability Report: Not included",
+            "Profile Building: Not included",
+            "Mentor Discussion: Not included",
+            "CV Review: Not included",
+            "Career Discussion: Not included",
         ],
     },
     {
-        id: "professional",
-        name: "Professional",
-        priceInr: 4999,
-        description: "Best for serious preparation across career, resume, and interview readiness.",
-        summary:
-            "Our most selected plan that blends deep profiling, strategy sessions, and execution support to accelerate outcomes.",
-        features: [
-            "Everything in Starter",
-            "Psychometric + aptitude deep analysis",
-            "Resume and LinkedIn optimization",
-            "Interview prep mock sessions",
-            "Priority support for 30 days",
-        ],
+        id: "growth",
+        name: "Growth",
+        priceInr: 8000,
+        description: "Comprehensive support for career discovery and profile building.",
         mostPopular: true,
+        color: "purple",
+        features: [
+            "Pre-Career Counselling 1-1 Session (30 Min)",
+            "Student Psychometric Analysis Test",
+            "Student Parent Psychometric Evaluation (1 Session)",
+            "Customize Career Discovery Planning Report",
+            "Live 1-1 Session: 2 sessions",
+            "Career Suitability Report: 2 career paths",
+            "Profile Building Guidance: Included",
+            "Mentor Discussion: 80 min",
+        ],
+        extraFeatures: [
+            "General Career Sensitization & Awareness (Group)",
+            "Live Group Sessions for Career Building",
+            "Lifetime Access to the Career Library",
+            "New Age Career Opportunities After 12 (Group)",
+            "Foreign Education & Scholarship Awareness (Group)",
+            "Industry-Job Specific Technology Skill (Group)",
+            "CV Review: Not included",
+            "Career Discussion: Not included",
+        ],
     },
     {
-        id: "enterprise",
-        name: "Enterprise",
-        priceInr: 9999,
-        description: "For advanced candidates and professionals targeting high-impact transitions.",
-        summary:
-            "A premium mentorship track with strategic planning, personalized coaching, and dedicated guidance for complex goals.",
+        id: "excel",
+        name: "Excel",
+        priceInr: 13000,
+        description: "The ultimate track for career mastery and global opportunities.",
+        color: "cyan",
         features: [
-            "Everything in Professional",
-            "1:1 expert mentorship plan",
-            "Portfolio and profile storytelling",
-            "Role transition strategy",
-            "Dedicated support for 60 days",
-            "Priority review slots",
+            "Pre-Career Counselling 1-1 Session (30 Min)",
+            "Student Psychometric Analysis Test",
+            "Student Parent Psychometric Evaluation (1 Session)",
+            "Live 1-1 Session: 4 sessions",
+            "Career Suitability Report: 3 career paths",
+            "Profile Building Guidance: Included",
+            "Mentor Discussion: 120 min",
+            "CV Review: Included",
+            "Career Discussion: Included",
+        ],
+        extraFeatures: [
+            "Customize Career Discovery Planning Report",
+            "General Career Sensitization & Awareness (Group)",
+            "Live Group Sessions for Career Building",
+            "Lifetime Access to the Career Library",
+            "New Age Career Opportunities After 12 (Group)",
+            "Foreign Education & Scholarship Awareness (Group)",
+            "Industry-Job Specific Technology Skill (Group)",
         ],
     },
 ];

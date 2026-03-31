@@ -29,7 +29,7 @@ export default function LoadingScreen() {
             {/* Architectural Background Blobs */}
             <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden">
                 <motion.div
-                    animate={{ 
+                    animate={{
                         scale: [1, 1.2, 1],
                         x: [0, 50, 0],
                         y: [0, 30, 0]
@@ -38,7 +38,7 @@ export default function LoadingScreen() {
                     className="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-vibe-blue/10 rounded-full blur-[100px]"
                 />
                 <motion.div
-                    animate={{ 
+                    animate={{
                         scale: [1.2, 1, 1.2],
                         x: [0, -50, 0],
                         y: [0, -30, 0]
@@ -57,10 +57,10 @@ export default function LoadingScreen() {
                     className="mb-12 relative"
                 >
                     <div className="w-24 h-24 bg-foreground rounded-[2rem] flex items-center justify-center shadow-3d overflow-hidden">
-                        <Image 
-                            src="/maestro_logo_only.png" 
-                            alt="Maestro Logo" 
-                            width={50} 
+                        <Image
+                            src="/maestro_logo_only.png"
+                            alt="Maestro Logo"
+                            width={50}
                             height={50}
                             className="object-contain brightness-0 invert"
                         />
@@ -88,23 +88,23 @@ export default function LoadingScreen() {
 
                     {/* Minimal Progress Bar */}
                     <div className="w-64 h-1 bg-foreground/5 rounded-full overflow-hidden relative">
-                        <motion.div 
+                        <motion.div
                             className="absolute inset-0 bg-primary origin-left"
                             initial={{ scaleX: 0 }}
                             animate={{ scaleX: progress / 100 }}
                             transition={{ duration: 0.1 }}
                         />
                     </div>
-                    
+
                     <div className="flex justify-center space-x-2">
-                         <span className="text-[8px] font-black uppercase tracking-widest text-foreground/20">{progress}% Completed</span>
+                        <span className="text-[8px] font-black uppercase tracking-widest text-foreground/20">{progress}% Completed</span>
                     </div>
                 </div>
             </div>
 
             {/* Bottom Status Label */}
             <div className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-20">
-                <span className="text-[10px] font-black uppercase tracking-[0.8em] select-none">MAESTRO CARE 2026</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.8em] select-none">MAESTRO CAREER 2026</span>
             </div>
         </motion.div>
     );
