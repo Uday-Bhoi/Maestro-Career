@@ -3,21 +3,13 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { motion, useTransform, useSpring, useMotionValue } from "framer-motion";
-<<<<<<< HEAD
-import { Cpu, Layout, Layers, Box, MousePointer2 } from "lucide-react";
-=======
 import { Cpu, Layout, Layers, Box, MousePointer2, type LucideIcon } from "lucide-react";
->>>>>>> 4ba99881ecf3a893fcf84723ab34fbce0ada6681
 import React from "react";
 
 interface FeatureCardProps {
     title: string;
     desc: string;
-<<<<<<< HEAD
-    icon: React.ElementType;
-=======
     icon: LucideIcon;
->>>>>>> 4ba99881ecf3a893fcf84723ab34fbce0ada6681
     color: string;
 }
 

@@ -14,17 +14,10 @@ import {
     Area,
 } from "recharts";
 
-<<<<<<< HEAD
 type ChartDataItem = Record<string, string | number>;
 
 interface LineChartProps {
     data: ChartDataItem[];
-=======
-type ChartDataPoint = Record<string, number | string>;
-
-interface LineChartProps {
-    data: ChartDataPoint[];
->>>>>>> 4ba99881ecf3a893fcf84723ab34fbce0ada6681
 }
 
 export function PremiumLineChart({ data }: LineChartProps) {
@@ -72,11 +65,7 @@ export function PremiumLineChart({ data }: LineChartProps) {
     );
 }
 
-<<<<<<< HEAD
 export function PremiumBarChart({ data }: { data: ChartDataItem[] }) {
-=======
-export function PremiumBarChart({ data }: { data: ChartDataPoint[] }) {
->>>>>>> 4ba99881ecf3a893fcf84723ab34fbce0ada6681
     return (
         <div className="h-[400px] w-full p-8 rounded-[2.5rem] bg-secondary/10 border border-foreground/5 backdrop-blur-md">
             <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-foreground/40 mb-8">User.Registrations</h2>
