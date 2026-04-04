@@ -37,6 +37,12 @@ interface ProfileRow {
     last_login_method: LoginMethod | null;
     login_count: number;
     inquiry_count: number;
+    selected_plan_id: string | null;
+    payment_status: "paid" | "unpaid" | null;
+    payment_id: string | null;
+    transaction_id: string | null;
+    payment_token: string | null;
+    psychometric_test_link: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -69,6 +75,12 @@ export interface PublicUser {
     domain?: string;
     companyRole?: string;
     city?: string;
+    selectedPlanId?: string;
+    paymentStatus?: "paid" | "unpaid";
+    paymentId?: string;
+    transactionId?: string;
+    paymentToken?: string;
+    psychometricTestLink?: string;
 }
 
 export interface DashboardData {
@@ -384,6 +396,30 @@ async function upsertProfile(
             overrides.inquiry_count ??
             existing?.inquiry_count ??
             0,
+        selected_plan_id:
+            overrides.selected_plan_id ??
+            existing?.selected_plan_id ??
+            null,
+        payment_status:
+            overrides.payment_status ??
+            existing?.payment_status ??
+            "unpaid",
+        payment_id:
+            overrides.payment_id ??
+            existing?.payment_id ??
+            null,
+        transaction_id:
+            overrides.transaction_id ??
+            existing?.transaction_id ??
+            null,
+        payment_token:
+            overrides.payment_token ??
+            existing?.payment_token ??
+            null,
+        psychometric_test_link:
+            overrides.psychometric_test_link ??
+            existing?.psychometric_test_link ??
+            null,
     };
 
     const { data, error } = await admin
@@ -424,6 +460,12 @@ function toPublicUser(user: User, profile: ProfileRow | null): PublicUser {
         domain: profile?.domain ?? undefined,
         companyRole: profile?.company_role ?? undefined,
         city: profile?.city ?? undefined,
+        selectedPlanId: profile?.selected_plan_id ?? undefined,
+        paymentStatus: profile?.payment_status ?? undefined,
+        paymentId: profile?.payment_id ?? undefined,
+        transactionId: profile?.transaction_id ?? undefined,
+        paymentToken: profile?.payment_token ?? undefined,
+        psychometricTestLink: profile?.psychometric_test_link ?? undefined,
     };
 }
 
@@ -840,6 +882,19 @@ export async function completeProfileFromSession(
     });
 
     await insertActivity(user.id, "profile", "Completed profile setup.");
+    return toPublicUser(user, profile);
+}
+
+export async function selectPlanFromSession(supabase: SupabaseClient, planId: string) {
+    ensureSupabaseConfigured();
+
+    const user = await requireAuthenticatedUser(supabase);
+    const profile = await upsertProfile(user, {
+        selected_plan_id: planId,
+        payment_status: "unpaid",
+    });
+
+    await insertActivity(user.id, "profile", `Selected the "${planId}" plan.`);
     return toPublicUser(user, profile);
 }
 

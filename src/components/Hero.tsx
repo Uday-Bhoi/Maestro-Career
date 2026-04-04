@@ -94,7 +94,7 @@ export default function Hero() {
                         </p>
 
                         <Link
-                            href="/demo-test"
+                            href="/auth"
                             className="group relative inline-flex items-center gap-6 px-12 py-6 bg-primary text-white text-[10px] font-black uppercase tracking-[0.6em] hover:scale-105 transition-all shadow-3xl active:scale-95"
                         >
                             Get Started

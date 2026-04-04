@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import { Check, X, ChevronDown } from "lucide-react";
 import { PLANS, type Plan } from "@/data/plans";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 export default function Pricing() {
     return (
@@ -37,6 +39,40 @@ export default function Pricing() {
 function PricingCard({ plan, index }: { plan: Plan; index: number }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isSelected, setIsSelected] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
+
+    const handleGetStarted = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsLoading(true);
+
+        try {
+            const supabase = createBrowserSupabaseClient();
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                router.push("/auth");
+                return;
+            }
+
+            const resp = await fetch("/api/profile/select-plan", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ planId: plan.id }),
+            });
+            const data = await resp.json();
+
+            if (data.success) {
+                router.push("/dashboard");
+            } else {
+                router.push("/dashboard"); // Fallback
+            }
+        } catch (error) {
+            router.push("/dashboard"); // Fallback
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const getAuraColor = () => {
         // Use theme-aware shadows instead of hardcoded colors
@@ -113,16 +149,16 @@ function PricingCard({ plan, index }: { plan: Plan; index: number }) {
                     </div>
                 </button>
 
-                <Link
-                    href={`/checkout/${plan.id}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className={`w-full py-6 rounded-2xl flex items-center justify-center text-[11px] font-black uppercase tracking-[0.4em] transition-all duration-300 border ${plan.mostPopular
+                <button
+                    disabled={isLoading}
+                    onClick={handleGetStarted}
+                    className={`w-full py-6 rounded-2xl flex items-center justify-center text-[11px] font-black uppercase tracking-[0.4em] transition-all duration-300 border disabled:opacity-50 ${plan.mostPopular
                         ? 'bg-primary text-primary-foreground border-transparent hover:scale-[1.02] shadow-xl shadow-primary/30'
                         : 'bg-foreground text-background border-transparent hover:scale-[1.02] hover:bg-primary hover:text-primary-foreground'
                         }`}
                 >
-                    Get Started
-                </Link>
+                    {isLoading ? "Redirecting..." : "Get Started"}
+                </button>
             </div>
 
             {/* Kinetic Decoration */}
