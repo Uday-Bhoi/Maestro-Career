@@ -48,7 +48,7 @@ export default function LoadingScreen() {
                 />
             </div>
 
-            <div className="relative z-10 flex flex-col items-center">
+            <div className="relative z-10 flex w-full max-w-[26rem] flex-col items-center px-6">
                 {/* Logo Animation */}
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
@@ -74,7 +74,7 @@ export default function LoadingScreen() {
                 </motion.div>
 
                 {/* Progress Narrative */}
-                <div className="space-y-6 text-center">
+                <div className="w-full space-y-6 text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -87,16 +87,16 @@ export default function LoadingScreen() {
                     </motion.div>
 
                     {/* Minimal Progress Bar */}
-                    <div className="w-64 h-1 bg-foreground/5 rounded-full overflow-hidden relative">
+                    <div className="mx-auto h-1.5 w-full rounded-full bg-foreground/5 overflow-hidden">
                         <motion.div
-                            className="absolute inset-0 bg-primary origin-left"
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: progress / 100 }}
-                            transition={{ duration: 0.1 }}
+                            className="h-full rounded-full bg-primary"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress}%` }}
+                            transition={{ duration: 0.1, ease: "linear" }}
                         />
                     </div>
 
-                    <div className="flex justify-center space-x-2">
+                    <div className="flex justify-center">
                         <span className="text-[8px] font-black uppercase tracking-widest text-foreground/20">{progress}% Completed</span>
                     </div>
                 </div>
